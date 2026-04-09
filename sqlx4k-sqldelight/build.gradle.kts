@@ -1,10 +1,35 @@
+import com.android.build.api.dsl.KotlinMultiplatformAndroidLibraryTarget
+import org.gradle.api.plugins.ExtensionAware
+
 plugins {
     id("io.github.smyrgeorge.sqlx4k.multiplatform.simple")
     id("io.github.smyrgeorge.sqlx4k.publish")
     id("io.github.smyrgeorge.sqlx4k.dokka")
+    alias(libs.plugins.android.kotlin.multiplatform.library) apply false
+}
+
+val androidTargetEnabled = providers.gradleProperty("targets").orNull
+    ?.let { targets ->
+        targets == "all" || targets.split(",").any { target -> target.trim() == "android" }
+    } == true
+
+if (androidTargetEnabled) {
+    apply(plugin = "com.android.kotlin.multiplatform.library")
 }
 
 kotlin {
+    if (androidTargetEnabled) {
+        val androidTarget = (this as ExtensionAware)
+            .extensions
+            .getByName("android") as KotlinMultiplatformAndroidLibraryTarget
+
+        androidTarget.apply {
+            namespace = "io.github.smyrgeorge.sqlx4k.sqldelight"
+            compileSdk = 36
+            minSdk = 21
+        }
+    }
+
     sourceSets {
         configureEach {
             languageSettings.progressiveMode = true
@@ -27,6 +52,7 @@ kotlin {
             dependencies {
                 implementation(libs.sqlx4k.postgres)
                 implementation(libs.sqlx4k.mysql)
+                implementation(libs.sqlx4k.sqlite)
                 implementation(libs.testcontainers)
                 implementation(libs.testcontainers.postgresql)
                 implementation(libs.testcontainers.mysql)

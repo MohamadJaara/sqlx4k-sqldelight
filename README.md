@@ -21,7 +21,7 @@ If you are looking the driver implementation, you can find it here: https://gith
 
 ## Usage
 
-Only `PostgreSQL` and `MySQL` is supported for now.
+`PostgreSQL`, `MySQL`, and `SQLite` are supported.
 
 ```kotlin
 // build.gradle.kts
@@ -29,8 +29,10 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
-                implementation("io.github.smyrgeorge:sqlx4k-postgres:x.y.z")
                 implementation("io.github.smyrgeorge:sqlx4k-sqldelight:x.y.z")
+                implementation("io.github.smyrgeorge:sqlx4k-postgres:x.y.z")
+                // Or "io.github.smyrgeorge:sqlx4k-mysql:x.y.z"
+                // Or "io.github.smyrgeorge:sqlx4k-sqlite:x.y.z" for JVM/Android SQLite.
             }
         }
     }
@@ -41,9 +43,20 @@ sqldelight {
         generateAsync = true
         packageName = "db.entities"
         dialect("io.github.smyrgeorge:sqlx4k-sqldelight-dialect-postgres:x.y.z")
-        // Or 'io.github.smyrgeorge:sqlx4k-sqldelight-dialect-mysql:x.y.z' for MySQl. 
+        // Or "io.github.smyrgeorge:sqlx4k-sqldelight-dialect-mysql:x.y.z" for MySQL.
+        // SQLite uses SQLDelight's default SQLite dialect, so no extra dialect dependency is needed.
     }
 }
+```
+
+For SQLite, the async wrapper is the same on JVM and Android:
+
+```kotlin
+import io.github.smyrgeorge.sqlx4k.sqlite.SQLite
+import io.github.smyrgeorge.sqlx4k.sqldelight.Sqlx4kSqldelightDriver
+
+val jvmDriver = Sqlx4kSqldelightDriver(SQLite(":memory:"))
+val androidDriver = Sqlx4kSqldelightDriver(SQLite(context = appContext, url = "app.db"))
 ```
 
 Check the examples for more information.
@@ -52,7 +65,8 @@ Check the examples for more information.
 
 We support the following targets:
 
-- jvm (only PostgreSQL and MySQL are supported at the moment)
+- jvm
+- android
 - iosArm64
 - androidNativeX64
 - androidNativeArm64
