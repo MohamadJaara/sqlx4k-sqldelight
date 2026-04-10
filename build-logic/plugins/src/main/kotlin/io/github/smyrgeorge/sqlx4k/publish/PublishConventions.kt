@@ -17,6 +17,11 @@ class PublishConventions : Plugin<Project> {
 
     override fun apply(project: Project) {
         project.plugins.apply("com.vanniktech.maven.publish")
+        val shouldSign = project.providers.gradleProperty("signingInMemoryKey").isPresent ||
+            project.providers.gradleProperty("signingKey").isPresent ||
+            project.providers.environmentVariable("ORG_GRADLE_PROJECT_signingInMemoryKey").isPresent ||
+            project.providers.environmentVariable("ORG_GRADLE_PROJECT_signingKey").isPresent
+
         project.extensions.configure<MavenPublishBaseExtension> {
             // sources publishing is always enabled by the Kotlin Multiplatform plugin
             configure(
@@ -62,8 +67,9 @@ class PublishConventions : Plugin<Project> {
             // Configure publishing to Maven Central
             publishToMavenCentral()
 
-            // Enable GPG signing for all publications
-            signAllPublications()
+            if (shouldSign) {
+                signAllPublications()
+            }
         }
     }
 }

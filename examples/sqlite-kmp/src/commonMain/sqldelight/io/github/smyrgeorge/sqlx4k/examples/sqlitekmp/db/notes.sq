@@ -1,0 +1,17 @@
+CREATE TABLE sample (
+  id INTEGER NOT NULL PRIMARY KEY,
+  title TEXT NOT NULL,
+  platform TEXT NOT NULL
+);
+
+insertNote:
+INSERT INTO sample(id, title, platform)
+VALUES (?, ?, ?);
+
+selectAll:
+SELECT *
+FROM sample
+ORDER BY id;
+
+deleteAll:
+DELETE FROM sample;
